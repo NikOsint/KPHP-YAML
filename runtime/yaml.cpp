@@ -60,9 +60,24 @@ void mixed_to_yaml_node(const mixed &data, YAML::Node &node) {
   if (data_array.is_pseudo_vector()) {
     for (auto it = data_array.begin(); it != data_array.end(); ++it) {
       mixed data_piece = it.get_value();
-      YAML::Node node_piece;
-      mixed_to_yaml_node(data_piece, node_piece);
-      node.push_back(node_piece);
+      if (data_piece.is_array()) {
+        YAML::Node node_piece;
+        mixed_to_yaml_node(data_piece, node_piece);
+        node.push_back(node_piece);
+      }
+      else if (data_piece.is_string()) {
+        node.push_back(std::string(data_piece.as_string().c_str()));
+      }
+      else if (data_piece.is_int()) {
+        node.push_back(data_piece.as_int());
+      }
+      else if (data_piece.is_float()) {
+        node.push_back(data_piece.as_double());
+      }
+      else if (data_piece.is_null()) {
+        php_warning("Data piece is null. Skipping it");
+      }
+      else php_warning("Unknown data type. Skipping it");
     }
   } else {
     for (auto it = data_array.begin(); it != data_array.end(); ++it) {
