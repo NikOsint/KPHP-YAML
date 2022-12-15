@@ -38,8 +38,23 @@ void mixed_to_yaml_node(const mixed &data, YAML::Node &node) {
       php_warning("Cannot convert (mixed)null into yaml node");
       return;
     }
-    node.push_back(std::string(data.as_string().c_str()));
-    return;
+    if (data.is_string()) {
+      node.push_back(std::string(data.as_string().c_str()));
+      return;
+    }
+    if (data.is_int()) {
+      node.push_back(data.as_int());
+      return;
+    }
+    if (data.is_float()) {
+      node.push_back(data.as_double());
+      return;
+    }
+    if (data.is_bool()) {
+      if (!data.as_bool()) node.push_back("false");
+      else node.push_back("true");
+      return;
+    }
   }
   array<mixed> data_array = data.as_array();
   if (data_array.is_pseudo_vector()) {
