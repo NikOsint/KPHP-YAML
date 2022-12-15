@@ -69,8 +69,31 @@ void mixed_to_yaml_node(const mixed &data, YAML::Node &node) {
       mixed data_piece = it.get_value();
       YAML::Node node_piece;
       mixed_to_yaml_node(data_piece, node_piece);
-      node.force_insert(std::string(it.get_key().as_string().c_str()), node_piece);
-      //node[std::string(it.get_key().as_string().c_str())] = node_piece; // alternative way
+      mixed data_key = it.get_key();
+      if (data_key.is_null() || data_key.is_array()) {
+        php_warning("Key is null or an array. Cannot handle it. Pushing data as in a vector");
+        node.push_back(node_piece);
+      }
+      else if (data_key.is_string()) {
+        node[std::string(data_key.as_string().c_str())] = node_piece;
+      }
+      else if (data_key.is_int()) {
+        node[data_key.as_int()] = node_piece;
+      }
+      else if (data_key.is_float()) { // float casts to int, so this is redundant
+        node[data_key.as_double()] = node_piece;
+      }
+      else if (data_key.is_bool()) { // bool casts to int, so this is redundant
+        if (!data.as_bool()) {
+          node["false"] = node_piece;
+        } else {
+          node["true"] = node_piece;
+        }
+      }
+      else { // maybe this is redundant?
+        php_warning("Unknown key type. Pushing data as in a vector");
+        node.push_back(node_piece);
+      }
     }
   }
 }
