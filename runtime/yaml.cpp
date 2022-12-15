@@ -6,6 +6,8 @@
 
 #include "runtime/yaml.h"
 
+// TODO: fix parsing single object as a map with 1 key-value pair
+// TODO: fix deleting parentheses in strings
 void yaml_node_to_mixed(const YAML::Node &node, mixed &data) {
   data.clear();
   if (node.IsNull()) {
@@ -16,13 +18,6 @@ void yaml_node_to_mixed(const YAML::Node &node, mixed &data) {
     data = string(node.as<std::string>().c_str());
     return;
   }
-  if (node.IsMap()) {
-    for (auto it : node) {
-      mixed data_piece;
-      yaml_node_to_mixed(it.second, data_piece);
-      data[string(it.first.as<std::string>().c_str())] = data_piece;
-    }
-  }
   if (node.IsSequence()) {
     for (auto it = node.begin(); it != node.end(); ++it) {
       mixed data_piece;
@@ -30,9 +25,17 @@ void yaml_node_to_mixed(const YAML::Node &node, mixed &data) {
       data.push_back(data_piece);
     }
   }
+  else if (node.IsMap()) {
+    for (auto it : node) {
+      mixed data_piece;
+      yaml_node_to_mixed(it.second, data_piece);
+      data[string(it.first.as<std::string>().c_str())] = data_piece;
+    }
+  }
 }
 
-void mixed_to_yaml_node(const mixed &data, YAML::Node &node) { // TODO: rewrite using switch
+// TODO: rewrite using switch
+void mixed_to_yaml_node(const mixed &data, YAML::Node &node) {
   if (!data.is_array()) {
     if (data.is_null()) {
       php_warning("Cannot convert (mixed)null into yaml node");
