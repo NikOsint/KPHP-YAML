@@ -17,10 +17,10 @@ void yaml_node_to_mixed(const YAML::Node &node, mixed &data) {
     return;
   }
   if (node.IsMap()) {
-    for (auto it = node.begin(); it != node.end(); ++it) {
+    for (auto it : node) {
       mixed data_piece;
-      yaml_node_to_mixed(*it, data_piece);
-      data[string(it->first.as<std::string>().c_str())] = data_piece;
+      yaml_node_to_mixed(it.second, data_piece);
+      data[string(it.first.as<std::string>().c_str())] = data_piece;
     }
   }
   if (node.IsSequence()) {
@@ -32,7 +32,7 @@ void yaml_node_to_mixed(const YAML::Node &node, mixed &data) {
   }
 }
 
-void mixed_to_yaml_node(const mixed &data, YAML::Node &node) {
+void mixed_to_yaml_node(const mixed &data, YAML::Node &node) { // TODO: rewrite using switch
   if (!data.is_array()) {
     if (data.is_null()) {
       php_warning("Cannot convert (mixed)null into yaml node");
@@ -77,7 +77,7 @@ void mixed_to_yaml_node(const mixed &data, YAML::Node &node) {
       else if (data_piece.is_null()) {
         php_warning("Data piece is null. Skipping it");
       }
-      else php_warning("Unknown data type. Skipping it");
+      else php_warning("Unknown data type. Skipping it"); // maybe this is redundant?
     }
   } else {
     for (auto it = data_array.begin(); it != data_array.end(); ++it) {
@@ -130,13 +130,6 @@ bool f$yaml_emit_file(const string &filename, const mixed &data) {
 string f$yaml_emit(const mixed &data) {
   YAML::Node node;
   mixed_to_yaml_node(data, node);
-//  YAML::Emitter out;
-//  out << node;
-//  if (!out.good()) {
-//    php_warning("Error while emitting to yaml");
-//    return string();
-//  }
-//  return string(out.c_str());
   return string(YAML::Dump(node).c_str());
 }
 
