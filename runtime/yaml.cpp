@@ -8,10 +8,12 @@
 
 // TODO: fix parsing single object as a map with 1 key-value pair
 // TODO: fix deleting parentheses in strings
+// TODO: add keys other than strings if possible
+// TODO: add key-arrays support
 void yaml_node_to_mixed(const YAML::Node &node, mixed &data) {
   data.clear();
   if (node.IsNull()) {
-    php_warning("Yaml node is null");
+    php_warning("Yaml node is null. Skipping it");
     return;
   }
   if (node.IsScalar()) {
@@ -35,6 +37,7 @@ void yaml_node_to_mixed(const YAML::Node &node, mixed &data) {
 }
 
 // TODO: rewrite using switch
+// TODO: add key-arrays support
 void mixed_to_yaml_node(const mixed &data, YAML::Node &node) {
   if (!data.is_array()) {
     if (data.is_null()) {
@@ -42,20 +45,24 @@ void mixed_to_yaml_node(const mixed &data, YAML::Node &node) {
       return;
     }
     if (data.is_string()) {
-      node.push_back(std::string(data.as_string().c_str()));
+      node = std::string(data.as_string().c_str());
       return;
     }
     if (data.is_int()) {
-      node.push_back(data.as_int());
+      node = data.as_int();
       return;
     }
     if (data.is_float()) {
-      node.push_back(data.as_double());
+      node = data.as_double();
       return;
     }
     if (data.is_bool()) {
-      if (!data.as_bool()) node.push_back("false");
-      else node.push_back("true");
+      if (!data.as_bool()) {
+          node = false;
+      }
+      else {
+          node = true;
+      }
       return;
     }
   }
@@ -97,16 +104,6 @@ void mixed_to_yaml_node(const mixed &data, YAML::Node &node) {
       }
       else if (data_key.is_int()) {
         node[data_key.as_int()] = node_piece;
-      }
-      else if (data_key.is_float()) { // float casts to int, so this is redundant
-        node[data_key.as_double()] = node_piece;
-      }
-      else if (data_key.is_bool()) { // bool casts to int, so this is redundant
-        if (!data.as_bool()) {
-          node["false"] = node_piece;
-        } else {
-          node["true"] = node_piece;
-        }
       }
       else { // maybe this is redundant?
         php_warning("Unknown key type. Pushing data as in a vector");
