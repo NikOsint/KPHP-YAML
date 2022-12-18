@@ -2,7 +2,7 @@
 
 #include "runtime/optional.h"
 #include "runtime/streams.h"
-#include "runtime/critical_section"
+#include "runtime/critical_section.h"
 
 #include "runtime/yaml.h"
 
