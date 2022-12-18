@@ -2,11 +2,11 @@
 
 #include "runtime/optional.h"
 #include "runtime/streams.h"
-#include "runtime/string_functions.h"
+#include "runtime/critical_section"
 
 #include "runtime/yaml.h"
 
-// TODO: add support for values other than strings (int, double, array)
+// TODO: add key-arrays support
 void yaml_node_to_mixed(const YAML::Node &node, mixed &data) {
   data.clear();
   if (node.IsNull()) {
@@ -14,7 +14,19 @@ void yaml_node_to_mixed(const YAML::Node &node, mixed &data) {
     return;
   }
   if (node.IsScalar()) {
-    data = string(node.as<std::string>().c_str());
+    string string_data = string(node.as<std::string>().c_str());
+    if (string_data.is_int()) {
+      data = string_data.to_int();
+      return;
+    }
+    dl::enter_critical_section();
+    double *float_data = new double;
+    if (string_data.try_to_float(float_data)) {
+      data = *float_data;
+    }
+    else data = string_data;
+    delete float_data;
+    dl::leave_critical_section();
     return;
   }
   if (node.IsSequence()) {
@@ -81,6 +93,9 @@ void mixed_to_yaml_node(const mixed &data, YAML::Node &node) {
       else if (data_piece.is_float()) {
         node.push_back(data_piece.as_double());
       }
+      else if (data_piece.is_bool()) {
+          node.push_back(data_piece.as_bool());
+      }
       else if (data_piece.is_null()) {
         php_warning("Data piece is null. Skipping it");
       }
@@ -99,7 +114,7 @@ void mixed_to_yaml_node(const mixed &data, YAML::Node &node) {
       else if (data_key.is_string()) {
         node[std::string(data_key.as_string().c_str())] = node_piece;
       }
-      else if (data_key.is_int()) {
+      else if (data_key.is_int()) { // float and bool are cast to int
         node[data_key.as_int()] = node_piece;
       }
       else { // maybe this is redundant?
@@ -144,20 +159,10 @@ mixed f$yaml_parse_file(const string &filename, int pos) {
 }
 
 mixed f$yaml_parse(const string &data, int pos) {
-  YAML::Node node;
-  if (pos > 0) {
-    Optional<string> optional_data = f$substr(data, pos);
-    if (optional_data.is_false()) {
-      php_warning("Error while making substring");
-      return {};
-    }
-    node = YAML::Load(optional_data.ref().c_str());
-  } else {
-    if (pos < 0) {
-      php_warning("Argument \"pos\" cannot be negative, but it is %d. Setting to default (pos = 0)", pos);
-    }
-    node = YAML::Load(data.c_str());
+  if (pos < 0) {
+    php_warning("Argument \"pos\" = %d. Values other than 0 are not supported yet. Setting to default (pos = 0)", pos);
   }
+  YAML::Node node = YAML::Load(data.c_str());
   mixed parsed_data;
   yaml_node_to_mixed(node, parsed_data);
   return parsed_data;

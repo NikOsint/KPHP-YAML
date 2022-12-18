@@ -2,6 +2,12 @@
 
 KPHP integrated YAML parser and emitter based on [yaml-cpp](https://github.com/jbeder/yaml-cpp) library
 
+> *NOTE* In PHP, YAML functions are handled by another library - [LibYAML](https://pyyaml.org/wiki/LibYAML).
+> 
+> Behaviour of LibYAML and yaml-cpp differs slightly, so behaviour of your PHP code with YAML functions might differ with and without use of KPHP.
+> 
+> This circumstance also complicates writing PHP tests, which compare the results of code run with PHP and KPHP.
+
 ## Implemented functions
 
 The following functions from [PHP YAML](https://www.php.net/manual/ru/book.yaml.php) library are implemented: 
@@ -20,7 +26,9 @@ yaml_parse(string $data, int $pos = 0): mixed
 
 In order to use this package, [KPHP](https://vkcom.github.io/kphp) compiler is needed.
 
-> *NOTE:* this library uses [yaml-cpp](https://github.com/jbeder/yaml-cpp) library to parse and emit YAML files, but you do not need to install it manually. It is automatically installed with KPHP compiler.
+> *NOTE* this library uses [yaml-cpp](https://github.com/jbeder/yaml-cpp) library to parse and emit YAML files, but you do not need to install it manually.
+> 
+> It is automatically installed with KPHP compiler.
 
 ## Installation
 
@@ -48,8 +56,6 @@ git clone https://git.miem.hse.ru/1367/kphp-yaml
 
 ## Testing
 
-> Tests are currently under development
-
 Once KPHP is built, you can run tests.
 
 ### C++ Tests
@@ -63,9 +69,20 @@ ctest [-j <jobs>]
 
 ### PHP Tests
 
+> PHP Tests are currently under development
+
 These tests are written in PHP and are executed twice: with PHP and with KPHP. Then both outputs are compared.
 
-To run them, use command:
+> *NOTE* PHP YAML module is not installed with PHP by default.
+> 
+> Without it, PHP tests will crash.
+> 
+> To install PHP YAML, run command:
+> ```shell
+> apt install php-yaml
+> ```
+
+To run PHP tests, use command:
 ```shell
 tests/kphp_tester.py [<testfilename.php>]
 ``` 
