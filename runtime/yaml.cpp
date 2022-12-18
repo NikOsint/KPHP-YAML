@@ -6,7 +6,7 @@
 
 #include "runtime/yaml.h"
 
-// TODO: add support for keys other than strings (int, double, array)
+// TODO: add support for values other than strings (int, double, array)
 void yaml_node_to_mixed(const YAML::Node &node, mixed &data) {
   data.clear();
   if (node.IsNull()) {
