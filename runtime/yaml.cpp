@@ -6,10 +6,7 @@
 
 #include "runtime/yaml.h"
 
-// TODO: fix parsing single object as a map with 1 key-value pair
-// TODO: fix deleting parentheses in strings
-// TODO: add keys other than strings if possible
-// TODO: add key-arrays support
+// TODO: add support for keys other than strings (int, double, array)
 void yaml_node_to_mixed(const YAML::Node &node, mixed &data) {
   data.clear();
   if (node.IsNull()) {
