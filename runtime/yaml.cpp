@@ -8,7 +8,7 @@
 
 void yaml_node_to_mixed(const YAML::Node &node, const string &source) {
   data.clear(); // makes data NULL
-  if (node.IsScalar()) { // TODO: check character at pos in source
+  if (node.IsScalar()) {
     const string string_data = string(node.as<std::string>().c_str());
     if (string_data.is_int()) {
       if (source[node.Mark().pos] == '"' && source[node.Mark().pos + string_data.size() + 1] == '"') {
