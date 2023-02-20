@@ -24,6 +24,20 @@ TEST(yaml_test, test_yaml_float) {
   ASSERT_DOUBLE_EQ(example.as_double(), result.as_double());
 }
 
+TEST(yaml_test, test_yaml_int_as_string) {
+  mixed example = string("13");
+  mixed result = f$yaml_parse(f$yaml_emit(example));
+  ASSERT_TRUE(result.is_string());
+  ASSERT_EQ(example.as_string(), result.as_string());
+}
+
+TEST(yaml_test, test_yaml_float_as_string) {
+  mixed example = string("3.1416");
+  mixed result = f$yaml_parse(f$yaml_emit(example));
+  ASSERT_TRUE(result.is_string());
+  ASSERT_EQ(example.as_string(), result.as_string());
+}
+
 TEST(yaml_test, test_yaml_vector) {
   mixed example;
   example.push_back(string("string"));
@@ -123,6 +137,26 @@ TEST(yaml_test, test_yaml_float_file) {
   mixed result = f$yaml_parse_file(filename);
   ASSERT_TRUE(result.is_float());
   ASSERT_DOUBLE_EQ(example.as_double(), result.as_double());
+  ASSERT_TRUE(f$unlink(filename));
+}
+
+TEST(yaml_test, test_yaml_int_as_string_file) {
+  mixed example = string("13");
+  string filename("test_yaml_int_as_string");
+  ASSERT_TRUE(f$yaml_emit_file(filename, example));
+  mixed result = f$yaml_parse_file(filename);
+  ASSERT_TRUE(result.is_string());
+  ASSERT_EQ(example.as_string(), result.as_string());
+  ASSERT_TRUE(f$unlink(filename));
+}
+
+TEST(yaml_test, test_yaml_float_as_string_file) {
+  mixed example = string("3.1416");
+  string filename("test_yaml_float_as_string");
+  ASSERT_TRUE(f$yaml_emit_file(filename, example));
+  mixed result = f$yaml_parse_file(filename);
+  ASSERT_TRUE(result.is_string());
+  ASSERT_EQ(example.as_string(), result.as_string());
   ASSERT_TRUE(f$unlink(filename));
 }
 
