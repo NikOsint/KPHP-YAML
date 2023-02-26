@@ -4,7 +4,7 @@ KPHP integrated YAML parser and emitter based on [yaml-cpp](https://github.com/j
 
 > *NOTE* In PHP, YAML functions are handled by another library - [LibYAML](https://pyyaml.org/wiki/LibYAML).
 > 
-> Behaviour of LibYAML and yaml-cpp differs, so YAML-files parsed with PHP and KPHP might differ in style (not in content.
+> Behaviour of LibYAML and yaml-cpp differs, so YAML-files parsed with PHP and KPHP might differ in style (not in content).
 
 ## Implemented functions
 
@@ -37,12 +37,12 @@ To install this library, follow the steps:
 git clone https://github.com/VKCOM/kphp
 ```
 
-2. [Download KPHP YAML library](https://git.miem.hse.ru/1367/kphp-yaml)
+1. [Download KPHP YAML library](https://git.miem.hse.ru/1367/kphp-yaml)
 ```shell
 git clone https://git.miem.hse.ru/1367/kphp-yaml
 ```
 
-3. Replace/add the following files in KPHP folder:
+1. Replace/add the following files in KPHP folder:
 - builtin-functions/_functions.txt
 - runtime/yaml.h
 - runtime/yaml.cpp
@@ -50,7 +50,7 @@ git clone https://git.miem.hse.ru/1367/kphp-yaml
 - tests/cpp/runtime/yaml-test.cpp
 - tests/cpp/runtime/runtime-tests.cmake
 
-4. [Compile KPHP from source files](https://vkcom.github.io/kphp/kphp-internals/developing-and-extending-kphp/compiling-kphp-from-sources.html)
+1. [Compile KPHP from source files](https://vkcom.github.io/kphp/kphp-internals/developing-and-extending-kphp/compiling-kphp-from-sources.html)
 
 ## Testing
 
@@ -58,7 +58,7 @@ Once KPHP is built, you can run tests.
 
 ### C++ Tests
 
-These tests check whether there are bugs in KPHP itself, so no conversion from PHP takes place.
+These tests check whether there are bugs in the library.
 
 To run them, use command:
 ```shell
@@ -71,7 +71,7 @@ These tests are written in PHP and are executed twice: with PHP and with KPHP. T
 
 To run PHP tests, follow the [official guide](https://vkcom.github.io/kphp/kphp-internals/developing-and-extending-kphp/writing-and-running-tests.html#4-testing-compiler-and-runtime-compare-kphp-and-php).
 
-> *NOTE* PHP YAML module is not installed with PHP by default.
+> *NOTE:* PHP YAML module is not installed with PHP by default.
 > 
 > Without it, PHP tests will crash.
 > 
