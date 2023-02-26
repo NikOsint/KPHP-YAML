@@ -3,13 +3,12 @@
 #include "runtime/optional.h"
 #include "runtime/streams.h"
 #include "runtime/critical_section.h"
-
 #include "runtime/yaml.h"
 
-void yaml_node_to_mixed(const YAML::Node &node, const string &source) {
-  data.clear(); // makes data NULL
+void yaml_node_to_mixed(const YAML::Node &node, mixed &data, const string &source) {
+  data.clear(); // sets data to NULL
   if (node.IsScalar()) {
-    const string string_data = string(node.as<std::string>().c_str());
+    const string string_data(node.as<std::string>().c_str());
     if (string_data.is_int()) {
       if (source[node.Mark().pos] == '"' && source[node.Mark().pos + string_data.size() + 1] == '"') {
         data = string_data;
@@ -56,9 +55,9 @@ string print_tabs(uint8_t nesting_level) {
 
 string print_key(const mixed& data_key) {
   if (data_key.is_string()) {
-    return = data_key.as_string();
+    return data_key.as_string();
   }
-  return = string(data_key.as_int()); // array can not be a key; bool and float are cast to int
+  return string(data_key.as_int()); // array can not be a key; bool and float keys are cast to int
 }
 
 void mixed_to_string(const mixed& data, string& string_data, uint8_t nesting_level = 0) {
@@ -66,8 +65,9 @@ void mixed_to_string(const mixed& data, string& string_data, uint8_t nesting_lev
     if (data.is_null()) {
       string_data.push_back('~');
     } else if (data.is_string()) {
-      const string string_data_piece = data.as_string();
-      if (string_data_piece[0] != '"' and string_data_piece[string_data_piece.size() - 1] != '"') {
+      const string& string_data_piece = data.as_string();
+      if (string_data_piece.size() < 2
+          || (string_data_piece[0] != '"' && string_data_piece[string_data_piece.size() - 1] != '"')) {
         string_data.push_back('"');
         string_data.append(string_data_piece);
         string_data.push_back('"');
@@ -87,7 +87,7 @@ void mixed_to_string(const mixed& data, string& string_data, uint8_t nesting_lev
   const array<mixed> &data_array = data.as_array();
   if (data_array.is_pseudo_vector()) {
     for (const auto &it : data_array) {
-      const mixed data_piece = it.get_value();
+      const mixed &data_piece = it.get_value();
       string_data.append(print_tabs(nesting_level));
       string_data.append("- ");
       if (data_piece.is_array()) {
@@ -97,7 +97,7 @@ void mixed_to_string(const mixed& data, string& string_data, uint8_t nesting_lev
     }
   } else {
     for (const auto &it : data_array) {
-      const mixed data_piece = it.get_value();
+      const mixed &data_piece = it.get_value();
       string_data.append(print_tabs(nesting_level));
       string_data.append(print_key(it.get_key()));
       string_data.append(": ");
