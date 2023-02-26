@@ -10,6 +10,13 @@ TEST(yaml_test, test_yaml_string) {
   ASSERT_TRUE(example.as_string() == result.as_string());
 }
 
+TEST(yaml_test, test_yaml_empty_string) {
+  mixed example = string("");
+  mixed result = f$yaml_parse(f$yaml_emit(example));
+  ASSERT_TRUE(result.is_string());
+  ASSERT_TRUE(example.as_string() == result.as_string());
+}
+
 TEST(yaml_test, test_yaml_int) {
   mixed example = 13;
   mixed result = f$yaml_parse(f$yaml_emit(example));
@@ -113,6 +120,16 @@ TEST(yaml_test, test_yaml_map_recursive) {
 TEST(yaml_test, test_yaml_string_file) {
   mixed example = string("string");
   string filename("test_yaml_string");
+  ASSERT_TRUE(f$yaml_emit_file(filename, example));
+  mixed result = f$yaml_parse_file(filename);
+  ASSERT_TRUE(result.is_string());
+  ASSERT_TRUE(example.as_string() == result.as_string());
+  ASSERT_TRUE(f$unlink(filename));
+}
+
+TEST(yaml_test, test_yaml_empty_string_file) {
+  mixed example = string("");
+  string filename("test_yaml_empty_string");
   ASSERT_TRUE(f$yaml_emit_file(filename, example));
   mixed result = f$yaml_parse_file(filename);
   ASSERT_TRUE(result.is_string());
