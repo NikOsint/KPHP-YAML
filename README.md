@@ -2,9 +2,9 @@
 
 KPHP integrated YAML parser and emitter based on [yaml-cpp](https://github.com/jbeder/yaml-cpp) library
 
-> *NOTE* In PHP, YAML functions are handled by another library - [LibYAML](https://pyyaml.org/wiki/LibYAML).
+> *NOTE*: In PHP, YAML functions are handled by another library - [LibYAML](https://pyyaml.org/wiki/LibYAML).
 > 
-> Behaviour of LibYAML and yaml-cpp differs, so YAML-files parsed with PHP and KPHP might differ in style (not in content).
+> Behaviour of LibYAML and yaml-cpp differs slightly, so YAML documents parsed with PHP and KPHP might differ in style (not in content).
 
 ## Implemented functions
 
@@ -24,7 +24,7 @@ yaml_parse(string $data, int $pos = 0): mixed
 
 In order to use this package, [KPHP](https://vkcom.github.io/kphp) compiler is needed.
 
-> *NOTE* this library uses [yaml-cpp](https://github.com/jbeder/yaml-cpp) library to parse and emit YAML files, but you do not need to install it manually.
+> *NOTE*: this library uses [yaml-cpp](https://github.com/jbeder/yaml-cpp) library to parse and emit YAML files, but you do not need to install it manually.
 > 
 > It is automatically installed with KPHP compiler.
 
@@ -49,6 +49,8 @@ git clone https://git.miem.hse.ru/1367/kphp-yaml
 - runtime/runtime.cmake
 - tests/cpp/runtime/yaml-test.cpp
 - tests/cpp/runtime/runtime-tests.cmake
+- tests/phpt/yaml/01_complex.php
+- tests/python/lib/kphp_run_once.py
 
 1. [Compile KPHP from source files](https://vkcom.github.io/kphp/kphp-internals/developing-and-extending-kphp/compiling-kphp-from-sources.html)
 
@@ -69,9 +71,13 @@ ctest [-j <jobs>]
 
 These tests are written in PHP and are executed twice: with PHP and with KPHP. Then both outputs are compared.
 
-To run PHP tests, follow the [official guide](https://vkcom.github.io/kphp/kphp-internals/developing-and-extending-kphp/writing-and-running-tests.html#4-testing-compiler-and-runtime-compare-kphp-and-php).
+To run PHP tests for this particular library, execute the following command in your terminal, assuming you are in kphp folder:
 
-> *NOTE:* PHP YAML module is not installed with PHP by default.
+```shell
+tests/kphp_tester.py tests/phpt/yaml
+```
+
+> *NOTE*: PHP YAML module is not installed with PHP by default.
 > 
 > Without it, PHP tests will crash.
 > 
@@ -79,6 +85,8 @@ To run PHP tests, follow the [official guide](https://vkcom.github.io/kphp/kphp-
 > ```shell
 > apt install php-yaml
 > ```
+
+To run other PHP tests, please follow the [official guide](https://vkcom.github.io/kphp/kphp-internals/developing-and-extending-kphp/writing-and-running-tests.html#4-testing-compiler-and-runtime-compare-kphp-and-php).
 
 ## Running
 
