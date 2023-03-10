@@ -5,11 +5,17 @@
 #include "runtime/critical_section.h"
 #include "runtime/yaml.h"
 
+
+/*
+ * convert YAML::Node to mixed after parsing a YAML document into YAML::Node
+ */
 static void yaml_node_to_mixed(const YAML::Node &node, mixed &data, const string &source) noexcept {
   data.clear(); // sets data to NULL
   if (node.IsScalar()) {
     const string string_data(node.as<std::string>().c_str());
+    // check whether an entry is put in quotes in the source YAML
     const bool string_data_has_quotes = (source[node.Mark().pos] == '"' && source[node.Mark().pos + string_data.size() + 1] == '"');
+    // if so, the entry is a string
     if (string_data_has_quotes) {
       data = string_data;
     } else if (string_data == string("true") || string_data == string("false")) {
@@ -39,10 +45,16 @@ static void yaml_node_to_mixed(const YAML::Node &node, mixed &data, const string
   }
 }
 
+/*
+ * print tabs in quantity of nesting_level (used to print nested maps & vectors in YAML format)
+ */
 static string yaml_print_tabs(const uint8_t nesting_level) noexcept {
   return string(2 * nesting_level, ' ');
 }
 
+/*
+ * print the key of a YAML map entry
+ */
 static string yaml_print_key(const mixed& data_key) noexcept {
   if (data_key.is_string()) {
     return data_key.as_string();
@@ -50,6 +62,9 @@ static string yaml_print_key(const mixed& data_key) noexcept {
   return string(data_key.as_int()); // key can not be an array; bool and float keys are cast to int
 }
 
+/*
+ * get a YAML representation of mixed in a string variable
+ */
 static void mixed_to_string(const mixed& data, string& string_data, const uint8_t nesting_level = 0) noexcept {
   string buffer;
   if (!data.is_array()) {
@@ -57,7 +72,9 @@ static void mixed_to_string(const mixed& data, string& string_data, const uint8_
       buffer.push_back('~');
     } else if (data.is_string()) {
       const string& string_data_piece = data.as_string();
+      // check if a string has quotes
       if (string_data_piece.size() < 2 || (string_data_piece[0] != '"' && string_data_piece[string_data_piece.size() - 1] != '"')) {
+        // if not, put it in quotes
         buffer.push_back('"');
         buffer.append(string_data_piece);
         buffer.push_back('"');
@@ -81,12 +98,12 @@ static void mixed_to_string(const mixed& data, string& string_data, const uint8_
       const mixed &data_piece = it.get_value();
       buffer = yaml_print_tabs(nesting_level);
       if (data_piece.is_array()) {
-        buffer.append("-\n");
+        buffer.append("-\n"); // if an element of an array is also an array, go to the next line
       } else {
         buffer.append("- ");
       };
       string_data.append(buffer);
-      mixed_to_string(data_piece, string_data, nesting_level + 1);
+      mixed_to_string(data_piece, string_data, nesting_level + 1); // for entries of an array, increase nesting level
     }
   } else {
     for (const auto &it : data_array) {
@@ -94,12 +111,12 @@ static void mixed_to_string(const mixed& data, string& string_data, const uint8_
       buffer = yaml_print_tabs(nesting_level);
       buffer.append(yaml_print_key(it.get_key()));
       if (data_piece.is_array()) {
-        buffer.append(":\n");
+        buffer.append(":\n"); // if an element of an array is also an array, go to the next line
       } else {
         buffer.append(": ");
       };
       string_data.append(buffer);
-      mixed_to_string(data_piece, string_data, nesting_level + 1);
+      mixed_to_string(data_piece, string_data, nesting_level + 1); // for entries of an array, increase nesting level
     }
   }
 }
@@ -119,9 +136,9 @@ bool f$yaml_emit_file(const string &filename, const mixed &data) {
 }
 
 string f$yaml_emit(const mixed &data) {
-  string string_data("---\n");
+  string string_data("---\n"); // beginning of a YAML document
   mixed_to_string(data, string_data);
-  string_data.append("...");
+  string_data.append("..."); // ending of a YAML document
   return string_data;
 }
 
