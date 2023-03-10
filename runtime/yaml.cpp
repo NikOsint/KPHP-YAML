@@ -5,36 +5,24 @@
 #include "runtime/critical_section.h"
 #include "runtime/yaml.h"
 
-void yaml_node_to_mixed(const YAML::Node &node, mixed &data, const string &source) {
+static void yaml_node_to_mixed(const YAML::Node &node, mixed &data, const string &source) noexcept {
   data.clear(); // sets data to NULL
   if (node.IsScalar()) {
     const string string_data(node.as<std::string>().c_str());
-    if (string_data == string("true") || string_data == string("false")) {
-      if (source[node.Mark().pos] == '"' && source[node.Mark().pos + string_data.size() + 1] == '"') {
-        data = string_data;
-      } else {
-        data = string_data == string("true");
-      }
+    const bool string_data_has_quotes = (source[node.Mark().pos] == '"' && source[node.Mark().pos + string_data.size() + 1] == '"');
+    if (string_data_has_quotes) {
+      data = string_data;
+    } else if (string_data == string("true") || string_data == string("false")) {
+      data = (string_data == string("true"));
     } else if (string_data.is_int()) {
-      if (source[node.Mark().pos] == '"' && source[node.Mark().pos + string_data.size() + 1] == '"') {
-        data = string_data;
-      } else {
-        data = string_data.to_int();
-      }
+      data = string_data.to_int();
     } else {
-      dl::enter_critical_section();
-      auto *float_data = new double;
-      if (string_data.try_to_float(float_data)) {
-        if (source[node.Mark().pos] == '"' && source[node.Mark().pos + string_data.size() + 1] == '"') {
-          data = string_data;
-        } else {
-          data = *float_data;
-        }
+      double float_data = 0.0;
+      if (string_data.try_to_float(&float_data)) {
+        data = float_data;
       } else {
         data = string_data;
       }
-      delete float_data;
-      dl::leave_critical_section();
     }
   } else if (node.IsSequence()) {
     for (auto it = node.begin(); it != node.end(); ++it) {
@@ -51,42 +39,39 @@ void yaml_node_to_mixed(const YAML::Node &node, mixed &data, const string &sourc
   }
 }
 
-string print_tabs(uint8_t nesting_level) {
-  string tabs;
-  for (uint8_t i = 0; i < 2 * nesting_level; i++) {
-    tabs.push_back(' ');
-  }
-  return tabs;
+static string yaml_print_tabs(const uint8_t nesting_level) noexcept {
+  return string(2 * nesting_level, ' ');
 }
 
-string print_key(const mixed& data_key) {
+static string yaml_print_key(const mixed& data_key) noexcept {
   if (data_key.is_string()) {
     return data_key.as_string();
   }
-  return string(data_key.as_int()); // array can not be a key; bool and float keys are cast to int
+  return string(data_key.as_int()); // key can not be an array; bool and float keys are cast to int
 }
 
-void mixed_to_string(const mixed& data, string& string_data, uint8_t nesting_level = 0) {
+static void mixed_to_string(const mixed& data, string& string_data, const uint8_t nesting_level = 0) noexcept {
+  string buffer;
   if (!data.is_array()) {
     if (data.is_null()) {
-      string_data.push_back('~');
+      buffer.push_back('~');
     } else if (data.is_string()) {
       const string& string_data_piece = data.as_string();
-      if (string_data_piece.size() < 2
-          || (string_data_piece[0] != '"' && string_data_piece[string_data_piece.size() - 1] != '"')) {
-        string_data.push_back('"');
-        string_data.append(string_data_piece);
-        string_data.push_back('"');
+      if (string_data_piece.size() < 2 || (string_data_piece[0] != '"' && string_data_piece[string_data_piece.size() - 1] != '"')) {
+        buffer.push_back('"');
+        buffer.append(string_data_piece);
+        buffer.push_back('"');
       } else {
-        string_data.append(string_data_piece);
+        buffer = string_data_piece;
       }
     } else if (data.is_int()) {
-      string_data.append(data.as_int());
+      buffer.append(data.as_int());
     } else if (data.is_float()) {
-      string_data.append(data.as_double());
+      buffer.append(data.as_double());
     } else if (data.is_bool()) {
-      string_data.append((data.as_bool()) ? "true" : "false");
+      buffer = (data.as_bool()) ? string("true") : string("false");
     }
+    string_data.append(buffer);
     string_data.push_back('\n');
     return;
   }
@@ -94,22 +79,26 @@ void mixed_to_string(const mixed& data, string& string_data, uint8_t nesting_lev
   if (data_array.is_pseudo_vector()) {
     for (const auto &it : data_array) {
       const mixed &data_piece = it.get_value();
-      string_data.append(print_tabs(nesting_level));
-      string_data.append("- ");
+      buffer = yaml_print_tabs(nesting_level);
       if (data_piece.is_array()) {
-        string_data.push_back('\n');
-      }
+        buffer.append("-\n");
+      } else {
+        buffer.append("- ");
+      };
+      string_data.append(buffer);
       mixed_to_string(data_piece, string_data, nesting_level + 1);
     }
   } else {
     for (const auto &it : data_array) {
       const mixed &data_piece = it.get_value();
-      string_data.append(print_tabs(nesting_level));
-      string_data.append(print_key(it.get_key()));
-      string_data.append(": ");
+      buffer = yaml_print_tabs(nesting_level);
+      buffer.append(yaml_print_key(it.get_key()));
       if (data_piece.is_array()) {
-        string_data.push_back('\n');
-      }
+        buffer.append(":\n");
+      } else {
+        buffer.append(": ");
+      };
+      string_data.append(buffer);
       mixed_to_string(data_piece, string_data, nesting_level + 1);
     }
   }
