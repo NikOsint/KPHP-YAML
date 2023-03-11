@@ -10,7 +10,6 @@ function test_yaml_parse_config_file() {
   /** @param mixed $out */
   $out = yaml_parse(yaml_emit($in));
   echo(serialize($out) . PHP_EOL);
-  echo(serialize($in) . PHP_EOL);
 }
 
 test_yaml_parse_config_file();
