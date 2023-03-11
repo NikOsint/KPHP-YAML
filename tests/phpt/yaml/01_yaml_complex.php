@@ -1,7 +1,7 @@
 @ok
 <?php
 
-function test_emit_parse_complex_mixed() {
+function test_yaml_complex() {
   /** @param mixed $in */
   $in = array("10", 10, "9.7", 9.7, "", array("true"=>"true", true=>true, false=>false, array("false"=>"false", 10 => null)));
   echo(serialize($in) . PHP_EOL);
@@ -10,4 +10,4 @@ function test_emit_parse_complex_mixed() {
   echo(serialize($out) . PHP_EOL);
 }
 
-test_emit_parse_complex_mixed();
+test_yaml_complex();
