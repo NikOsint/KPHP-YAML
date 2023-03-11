@@ -3,7 +3,7 @@
 
 function test_yaml_complex() {
   /** @param mixed $in */
-  $in = array("10", 10, "9.7", 9.7, "", array("true"=>"true", true=>true, false=>false, array("false"=>"false", 10 => null)));
+  $in = array("10", 10, "9.7", 9.7, "", array(), array("true"=>"true", true=>true, false=>false, array("false"=>"false", 10 => null)));
   echo(serialize($in) . PHP_EOL);
   /** @param mixed $out */
   $out = yaml_parse(yaml_emit($in));
