@@ -71,7 +71,7 @@ static string yaml_print_key(const mixed &data_key) noexcept {
 /*
  * get a YAML representation of mixed in a string variable
  */
-static void mixed_to_string(const mixed &data, string &string_data, const uint8_t nesting_level = 0) noexcept {
+static void yaml_mixed_to_string(const mixed &data, string &string_data, const uint8_t nesting_level = 0) noexcept {
   string buffer;
   if (!data.is_array()) {
     if (data.is_null()) {
@@ -139,7 +139,7 @@ bool f$yaml_emit_file(const string &filename, const mixed &data) {
 
 string f$yaml_emit(const mixed &data) {
   string string_data("---\n"); // beginning of a YAML document
-  mixed_to_string(data, string_data);
+  yaml_mixed_to_string(data, string_data);
   string_data.append("...\n"); // ending of a YAML document
   return string_data;
 }
