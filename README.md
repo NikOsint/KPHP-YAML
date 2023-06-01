@@ -20,6 +20,51 @@ yaml_parse_file(string $filename, int $pos = 0): mixed
 yaml_parse(string $data, int $pos = 0): mixed
 ```
 
+### yaml_emit_file()
+
+Generate a YAML representation of the provided $data in the $filename.
+
+Parameters:
+- `string $filename` - name of the file to write data to
+- `mixed $data` - data to generate a YAML document from; can be any type except a resource
+
+Returns: *bool*
+- `true` if the file was written successfully
+- `false` if something went wrong and the file was not written
+
+### yaml_emit()
+
+Generate a YAML representation of the provided $data.
+
+Parameters:
+- `mixed $data` - data to generate a YAML document from; can be any type except a resource
+
+Returns: *string* - YAML representation of $data
+
+### yaml_parse_file()
+
+Convert a YAML document stream read from a file to a PHP variable.
+
+Parameters:
+- `string $filename` - name of the file to read data from
+- `int $pos` - number of document to extract from stream; not implemented yet, all the documents are extracted
+
+Returns: *mixed*
+- `false` on failure
+- otherwise, value encoded in input in appropriate PHP type
+
+### yaml_parse()
+
+Convert a YAML document stream to a PHP variable.
+
+Parameters:
+- `string $data` - YAML document to parse
+- `int $pos` - number of document to extract from stream; not implemented yet, all the documents are extracted
+
+Returns: *mixed*
+- `false` on failure
+- otherwise, value encoded in input in appropriate PHP type
+
 ## Prerequisites
 
 In order to use this package, [KPHP](https://vkcom.github.io/kphp) compiler is needed.
@@ -30,29 +75,34 @@ In order to use this package, [KPHP](https://vkcom.github.io/kphp) compiler is n
 
 ## Installation
 
-To install this library, follow the steps:
+If the [Merge Request](https://github.com/VKCOM/kphp/pull/707) is closed, you do not need to install this package - it is already built in KPHP.
+
+Otherwise, to install this library, follow the steps:
 
 1. [Download KPHP source code](https://github.com/VKCOM/kphp)
 ```shell
 git clone https://github.com/VKCOM/kphp
 ```
 
-1. [Download KPHP YAML library](https://git.miem.hse.ru/1367/kphp-yaml)
+2. [Download KPHP YAML library](https://git.miem.hse.ru/1367/kphp-yaml)
 ```shell
 git clone https://git.miem.hse.ru/1367/kphp-yaml
 ```
 
-1. Replace/add the following files in KPHP folder:
-- builtin-functions/_functions.txt
-- runtime/yaml.h
-- runtime/yaml.cpp
-- runtime/runtime.cmake
-- tests/cpp/runtime/yaml-test.cpp
-- tests/cpp/runtime/runtime-tests.cmake
-- tests/phpt/yaml/01_complex.php
-- tests/python/lib/kphp_run_once.py
+3. Replace/add the following files in KPHP folder:
+- `builtin-functions/_functions.txt`
+- `runtime/yaml.h`
+- `runtime/yaml.cpp`
+- `runtime/runtime.cmake`
+- `tests/cpp/runtime/yaml-test.cpp`
+- `tests/cpp/runtime/runtime-tests.cmake`
+- `tests/phpt/yaml/01_yaml_complex.php`
+- `tests/phpt/yaml/02_yaml_config_file.php`
+- `tests/phpt/yaml/03_yaml_escaping.php`
+- `tests/phpt/yaml/yaml_escaping.yml`
+- `tests/python/lib/kphp_run_once.py`
 
-1. [Compile KPHP from source files](https://vkcom.github.io/kphp/kphp-internals/developing-and-extending-kphp/compiling-kphp-from-sources.html)
+4. [Compile KPHP from source files](https://vkcom.github.io/kphp/kphp-internals/developing-and-extending-kphp/compiling-kphp-from-sources.html)
 
 ## Testing
 

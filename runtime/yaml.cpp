@@ -108,8 +108,8 @@ static void yaml_mixed_to_string(const mixed &data, string &string_data, const u
     if (data.is_null()) {
       buffer.push_back('~'); // tilda is a YAML representation of NULL
     } else if (data.is_string()) {
-      buffer.push_back('"');
-      buffer.append(yaml_escape(data.as_string()));
+      buffer.push_back('"'); // cover string entry in double quotes
+      buffer.append(yaml_escape(data.as_string())); // escape special characters
       buffer.push_back('"');
     } else if (data.is_int()) {
       buffer.append(data.as_int());
